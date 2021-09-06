@@ -27,17 +27,20 @@ public class CarController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Car>> findCarById(@PathVariable Long id) {
+    public ResponseEntity<Car> findCarById(@PathVariable Long id) {
         Optional<Car> car = carService.findCarById(id);
 
-        return ResponseEntity.ok().body(car);
+        return car.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+
     }
 
     @GetMapping("/type/{type}")
     public ResponseEntity<List<Car>> findCarByType(@PathVariable String type) {
         List<Car> cars = carService.findCarByType(type);
 
-        return ResponseEntity.ok().body(cars);
+        return cars.isEmpty() ?
+                ResponseEntity.noContent().build() :
+                ResponseEntity.ok().body(cars);
     }
 
     @PostMapping
@@ -62,6 +65,7 @@ public class CarController {
             carService.deleteCar(id);
         } catch (IllegalArgumentException e) {
             System.out.println("Meu Erro: " + e);
+            return ResponseEntity.notFound().build();
             // e.printStackTrace();
         }
 
