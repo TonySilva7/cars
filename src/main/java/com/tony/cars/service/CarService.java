@@ -1,12 +1,14 @@
 package com.tony.cars.service;
 
 import com.tony.cars.domain.Car;
+import com.tony.cars.domain.dto.CarDTO;
 import com.tony.cars.repository.CarRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CarService {
@@ -17,71 +19,58 @@ public class CarService {
         this.carRepository = carRepository;
     }
 
-    public List<Car> getAllCars() {
+    public List<CarDTO> getAllCars() {
         List<Car> cars = carRepository.findAll();
 
-        return cars;
+        List<CarDTO> listCars = cars.stream().map((c) -> CarDTO.toDTO(c)).collect(Collectors.toList());
+
+        return listCars;
     }
 
-    public Optional<Car> findCarById(Long id) {
+    public Optional<CarDTO> findCarById(Long id) {
+        return carRepository.findById(id).map((c) -> CarDTO.toDTO(c));
+        /*
         Optional<Car> car = carRepository.findById(id);
-
-        return car;
+        return car.map((c) -> Optional.of(new CarDTO(c))).orElse(null);
+        */
     }
 
-    public List<Car> findCarByType(String type) {
-        List<Car> car = carRepository.findByType(type);
+    public List<CarDTO> findCarByType(String type) {
+        List<Car> cars = carRepository.findByType(type);
+        List<CarDTO> listCars = cars.stream().map(CarDTO::toDTO).collect(Collectors.toList());
 
-        return car;
+        return listCars;
     }
 
-    public Car saveCar(Car car) {
-        return carRepository.save(car);
+    public Optional<CarDTO> saveCar(Car car) {
+        Car myCar = carRepository.save(car);
+        return Optional.of(CarDTO.toDTO(myCar));
     }
 
-    public Car updateCar(Long id, Car car) {
+    public Optional<CarDTO> updateCar(Long id, Car car) {
         Assert.notNull(id, "Não foi possível atualizar o registro!");
 
-        /*
-        Optional<Car> carDB = findCarById(id);
+        Optional<CarDTO> carDB = findCarById(id);
 
-        if (carDB.isPresent()) {
-            Car currentCar = carDB.get();
+        carDB.map((c) -> {
+            c.setName(car.getName());
+            c.setDescription(car.getDescription());
+            c.setUrlPhoto(car.getUrlPhoto());
+            c.setUrlVideo(car.getUrlVideo());
+            c.setLatitude(car.getLatitude());
+            c.setLongitude(car.getLongitude());
+            c.setType(car.getType());
 
-            currentCar.setName(car.getName());
-            currentCar.setDescription(car.getDescription());
-            currentCar.setUrlPhoto(car.getUrlPhoto());
-            currentCar.setUrlVideo(car.getUrlVideo());
-            currentCar.setLatitude(car.getLatitude());
-            currentCar.setLongitude(car.getLongitude());
-            currentCar.setType(car.getType());
-
-            carRepository.save(currentCar);
-            return currentCar;
-        } else {
-            throw new RuntimeException("Não foi possível atualizar");
-        }
-         */
-
-        Car myCar = findCarById(id).map((currentCar) -> {
-            currentCar.setName(car.getName());
-            currentCar.setDescription(car.getDescription());
-            currentCar.setUrlPhoto(car.getUrlPhoto());
-            currentCar.setUrlVideo(car.getUrlVideo());
-            currentCar.setLatitude(car.getLatitude());
-            currentCar.setLongitude(car.getLongitude());
-            currentCar.setType(car.getType());
-
-            return carRepository.save(currentCar);
+            return carRepository.save(CarDTO.toEntity(c));
         }).orElseThrow(() -> new RuntimeException("Não foi possível atualizar"));
 
-        return myCar;
+        return carDB;
     }
 
     public void deleteCar(Long id) {
-        Optional<Car> car = findCarById(id);
+        Optional<CarDTO> car = findCarById(id);
 
-        if(car.isPresent()) {
+        if (car.isPresent()) {
             carRepository.deleteById(id);
         } else {
             throw new IllegalArgumentException("Algo deu errado!");

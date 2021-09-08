@@ -1,6 +1,7 @@
 package com.tony.cars.api;
 
 import com.tony.cars.domain.Car;
+import com.tony.cars.domain.dto.CarDTO;
 import com.tony.cars.service.CarService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,24 +20,32 @@ public class CarController {
         this.carService = carService;
     }
 
+    /*
     @GetMapping()
     public ResponseEntity<List<Car>> getAllCars() {
         List<Car> cars = carService.getAllCars();
 
         return ResponseEntity.ok().body(cars);
     }
+     */
+    @GetMapping()
+    public ResponseEntity<List<CarDTO>> getAllCars() {
+        List<CarDTO> cars = carService.getAllCars();
+
+        return ResponseEntity.ok().body(cars);
+    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Car> findCarById(@PathVariable Long id) {
-        Optional<Car> car = carService.findCarById(id);
+    public ResponseEntity<CarDTO> findCarById(@PathVariable Long id) {
+        Optional<CarDTO> car = carService.findCarById(id);
 
         return car.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<Car>> findCarByType(@PathVariable String type) {
-        List<Car> cars = carService.findCarByType(type);
+    public ResponseEntity<List<CarDTO>> findCarByType(@PathVariable String type) {
+        List<CarDTO> cars = carService.findCarByType(type);
 
         return cars.isEmpty() ?
                 ResponseEntity.noContent().build() :
@@ -45,15 +54,15 @@ public class CarController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Car> insertCar(@RequestBody Car car) {
-        Car myCar = carService.saveCar(car);
+    public ResponseEntity<Optional<CarDTO>> insertCar(@RequestBody Car car) {
+        Optional<CarDTO> myCar = carService.saveCar(car);
 
         return ResponseEntity.ok().body(myCar);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Car> updateCar(@PathVariable Long id, @RequestBody Car car) {
-        Car myCar = carService.updateCar(id, car);
+    public ResponseEntity<Optional<CarDTO>> updateCar(@PathVariable Long id, @RequestBody Car car) {
+        Optional<CarDTO> myCar = carService.updateCar(id, car);
 
         return ResponseEntity.ok().body(myCar);
     }
