@@ -62,7 +62,24 @@ class CarsApplicationTests {
     @Test
     public void testCarLists() {
        List<CarDTO> cars = carService.getAllCars();
-       assertEquals(31, cars.size());
+       assertEquals(30, cars.size());
     }
 
+    @Test
+    public void testListaPorTipo() {
+        assertEquals(10, carService.findCarByType("classicos").size());
+        assertEquals(10, carService.findCarByType("esportivos").size());
+        assertEquals(10, carService.findCarByType("luxo").size());
+
+        assertEquals(0, carService.findCarByType("x").size());
+    }
+
+    @Test
+    public void testGetOnlyCar() {
+        Optional<CarDTO> op = carService.findCarById(11L);
+        assertTrue(op.isPresent());
+
+        CarDTO c = op.get();
+        assertEquals("Ferrari FF", c.getName());
+    }
 }
