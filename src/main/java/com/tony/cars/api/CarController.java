@@ -6,7 +6,9 @@ import com.tony.cars.service.CarService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,33 +54,38 @@ public class CarController {
                 ResponseEntity.ok().body(cars);
     }
 
+    // retorna uri do novo recurso
+    private URI getUri(Long id) {
+        return ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri();
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Optional<CarDTO>> insertCar(@RequestBody Car car) {
-        Optional<CarDTO> myCar = carService.saveCar(car);
+    public ResponseEntity<CarDTO> insertCar(@RequestBody Car car) {
+        try {
+            CarDTO myCar = carService.saveCar(car);
+            URI uriLocation = getUri(myCar.getId());
 
-        return ResponseEntity.ok().body(myCar);
+            return ResponseEntity.created(uriLocation).body(myCar);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Optional<CarDTO>> updateCar(@PathVariable Long id, @RequestBody Car car) {
+
+        car.setId(id);
         Optional<CarDTO> myCar = carService.updateCar(id, car);
 
-        return ResponseEntity.ok().body(myCar);
+        return myCar.isPresent() ? ResponseEntity.ok().body(myCar) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
-
-        try {
-            carService.deleteCar(id);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Meu Erro: " + e);
-            return ResponseEntity.notFound().build();
-            // e.printStackTrace();
-        }
-
-        return ResponseEntity.noContent().build();
+        boolean ok = carService.deleteCar(id);
+        return ok ? ResponseEntity.notFound().build() : ResponseEntity.noContent().build();
     }
 
 }

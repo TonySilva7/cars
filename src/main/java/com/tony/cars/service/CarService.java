@@ -5,7 +5,9 @@ import com.tony.cars.domain.dto.CarDTO;
 import com.tony.cars.repository.CarRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,9 +44,14 @@ public class CarService {
         return listCars;
     }
 
-    public Optional<CarDTO> saveCar(Car car) {
-        Car myCar = carRepository.save(car);
-        return Optional.of(CarDTO.toDTO(myCar));
+    public CarDTO saveCar(Car car) {
+        if (car.equals(null)) {
+            throw new IllegalArgumentException("Algo deu errado!");
+        }
+
+        CarDTO carDTO = CarDTO.toDTO(carRepository.save(car)) ;
+        Optional<CarDTO> myCar = Optional.of(carDTO);
+        return myCar.orElseThrow(() -> new IllegalArgumentException("Algo deu errado!"));
     }
 
     public Optional<CarDTO> updateCar(Long id, Car car) {
@@ -61,19 +68,24 @@ public class CarService {
             c.setLongitude(car.getLongitude());
             c.setType(car.getType());
 
-            return carRepository.save(CarDTO.toEntity(c));
-        }).orElseThrow(() -> new RuntimeException("Não foi possível atualizar"));
+            Car obj = CarDTO.toEntity(c);
+            carRepository.save(obj);
+
+            return c;
+        }).orElseThrow(() -> new IllegalArgumentException("Argumentos enviados são inválidos"));
 
         return carDB;
     }
 
-    public void deleteCar(Long id) {
+    public boolean deleteCar(Long id) {
         Optional<CarDTO> car = findCarById(id);
 
         if (car.isPresent()) {
             carRepository.deleteById(id);
+            return true;
         } else {
-            throw new IllegalArgumentException("Algo deu errado!");
+            return false;
+            //throw new IllegalArgumentException("Algo deu errado!");
         }
     }
 }
