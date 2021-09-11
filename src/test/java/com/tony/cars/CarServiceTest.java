@@ -13,7 +13,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class CarsApplicationTests {
+class CarsServiceTest {
 
     @Autowired
     private CarService carService; // instancia classe
@@ -61,8 +61,8 @@ class CarsApplicationTests {
     // Testa a list de carros
     @Test
     public void testCarLists() {
-       List<CarDTO> cars = carService.getAllCars();
-       assertEquals(30, cars.size());
+        List<CarDTO> cars = carService.getAllCars();
+        assertEquals(30, cars.size());
     }
 
     @Test
