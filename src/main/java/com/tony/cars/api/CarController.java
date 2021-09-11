@@ -3,8 +3,6 @@ package com.tony.cars.api;
 import com.tony.cars.domain.Car;
 import com.tony.cars.domain.dto.CarDTO;
 import com.tony.cars.service.CarService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +12,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
-@Api(value = "Carros")
 @RestController
 @RequestMapping("/api/v1/cars")
 public class CarController {
@@ -25,8 +22,7 @@ public class CarController {
         this.carService = carService;
     }
 
-    @ApiOperation(value = "Deve retornar uma lista de carros")
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<CarDTO>> getAllCars() {
         List<CarDTO> cars = carService.getAllCars();
 
