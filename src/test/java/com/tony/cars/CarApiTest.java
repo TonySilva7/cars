@@ -2,6 +2,7 @@ package com.tony.cars;
 
 import com.tony.cars.domain.Car;
 import com.tony.cars.domain.dto.CarDTO;
+import com.tony.cars.domain.exceptions.DomainException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,13 +29,18 @@ public class CarApiTest {
     }
 
     private ResponseEntity<List<CarDTO>> getAllCars(String url) {
-        return restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<CarDTO>>() {
-                }
-        );
+
+        try {
+            return restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<CarDTO>>() {
+                    }
+            );
+        } catch (Exception e) {
+            throw new DomainException("Necessita de um tipo válido");
+        }
     }
 
     // -> Assertions ..................................................
@@ -51,7 +57,13 @@ public class CarApiTest {
         assertEquals(10, getAllCars("/api/v1/cars/type/esportivos").getBody().size());
         assertEquals(10, getAllCars("/api/v1/cars/type/luxo").getBody().size());
 
-        assertEquals(HttpStatus.NO_CONTENT, getAllCars("/api/v1/cars/type/xxx").getStatusCode());
+        try {
+            getAllCars("/api/v1/cars/type/xxx");
+            assertEquals(HttpStatus.NOT_FOUND, getAllCars("/api/v1/cars/type/xxx").getStatusCode());
+        } catch (DomainException e) {
+            assertEquals("Necessita de um tipo válido", e.getMessage());
+        }
+        //assertEquals(HttpStatus.OK, getAllCars("/api/v1/cars/type/luxo").getStatusCode());
     }
 
     @Test
