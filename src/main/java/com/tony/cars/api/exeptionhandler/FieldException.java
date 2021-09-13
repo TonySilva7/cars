@@ -1,4 +1,4 @@
-package com.tony.cars.api.exeptions;
+package com.tony.cars.api.exeptionhandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

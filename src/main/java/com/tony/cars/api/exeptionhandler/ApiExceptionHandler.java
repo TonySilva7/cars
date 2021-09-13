@@ -1,4 +1,4 @@
-package com.tony.cars.api.exeptions;
+package com.tony.cars.api.exeptionhandler;
 
 import com.tony.cars.domain.exceptions.DomainException;
 import org.springframework.context.MessageSource;
@@ -23,51 +23,6 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
-    /*
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<StandardError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
-        String error = "Resource Not Found";
-        HttpStatus status = HttpStatus.NOT_FOUND; //404
-
-        StandardError myErr = new StandardError(
-                Instant.now(),
-                status.value(),
-                error,
-                e.getMessage(),
-                request.getRequestURI());
-
-        return ResponseEntity.status(status).body(myErr);
-    }
-
-    @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<StandardError> badRequestErr(DatabaseException e, HttpServletRequest request) {
-        String error = "Database Error";
-        HttpStatus status = HttpStatus.BAD_REQUEST; //400
-
-        StandardError err = new StandardError(
-                Instant.now(),
-                status.value(),
-                error, e.getMessage(),
-                request.getRequestURI());
-
-        return ResponseEntity.status(status).body(err);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<StandardError> argumentInvalidErr(IllegalArgumentException e, HttpServletRequest request) {
-        String error = "Bad Request Error";
-        HttpStatus status = HttpStatus.BAD_REQUEST; //400
-
-        StandardError err = new StandardError(
-                Instant.now(),
-                status.value(),
-                error, e.getMessage(),
-                request.getRequestURI());
-
-        return ResponseEntity.status(status).body(err);
-    }
-    */
-
 
     private final MessageSource messageSource;
 

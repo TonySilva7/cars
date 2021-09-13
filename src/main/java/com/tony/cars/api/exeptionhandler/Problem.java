@@ -1,11 +1,10 @@
-package com.tony.cars.api.exeptions;
+package com.tony.cars.api.exeptionhandler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.context.request.WebRequest;
 
 import java.time.OffsetDateTime;
 import java.util.List;
