@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,10 +42,9 @@ class CarsServiceTest {
         assertNotNull(id);
 
         // busca Object
-        Optional<CarDTO> op = carService.findCarById(id);
-        assertTrue(op.isPresent());
+        carDTO = carService.findCarById(id);
+        assertNotNull(carDTO);
 
-        carDTO = op.get();
         assertEquals("Ferrari 2", carDTO.getName());
         assertEquals("classico", carDTO.getType());
 
@@ -54,8 +52,13 @@ class CarsServiceTest {
         carService.deleteCar(id);
 
         // verifica se realmente deletou
-        assertFalse(carService.findCarById(id).isPresent());
-
+        try {
+            assertNotNull(carService.findCarById(id));
+            fail("O carro não foi excluído");
+        } catch (Exception e) {
+            System.out.println(e);
+            //e.printStackTrace();
+        }
     }
 
     // Testa a list de carros
@@ -76,10 +79,9 @@ class CarsServiceTest {
 
     @Test
     public void testGetOnlyCar() {
-        Optional<CarDTO> op = carService.findCarById(11L);
-        assertTrue(op.isPresent());
+        CarDTO op = carService.findCarById(11L);
+        assertNotNull(op);
 
-        CarDTO c = op.get();
-        assertEquals("Ferrari FF", c.getName());
+        assertEquals("Ferrari FF", op.getName());
     }
 }

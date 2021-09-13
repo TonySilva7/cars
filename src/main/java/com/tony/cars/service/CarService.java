@@ -1,13 +1,12 @@
 package com.tony.cars.service;
 
+import com.tony.cars.api.exeption.ObjectNotFoundException;
 import com.tony.cars.domain.Car;
 import com.tony.cars.domain.dto.CarDTO;
 import com.tony.cars.repository.CarRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,12 +28,10 @@ public class CarService {
         return listCars;
     }
 
-    public Optional<CarDTO> findCarById(Long id) {
-        return carRepository.findById(id).map((c) -> CarDTO.toDTO(c));
-        /*
-        Optional<Car> car = carRepository.findById(id);
-        return car.map((c) -> Optional.of(new CarDTO(c))).orElse(null);
-        */
+    public CarDTO findCarById(Long id) {
+        return carRepository.findById(id)
+                .map(CarDTO::toDTO)
+                .orElseThrow(() -> new ObjectNotFoundException("Carro não encontrado!"));
     }
 
     public List<CarDTO> findCarByType(String type) {
@@ -45,21 +42,21 @@ public class CarService {
     }
 
     public CarDTO saveCar(Car car) {
-        if (car.equals(null)) {
-            throw new IllegalArgumentException("Algo deu errado!");
-        }
+        Assert.isNull(car.getId(), "Não foi possível inserir o registro.");
 
-        CarDTO carDTO = CarDTO.toDTO(carRepository.save(car)) ;
-        Optional<CarDTO> myCar = Optional.of(carDTO);
-        return myCar.orElseThrow(() -> new IllegalArgumentException("Algo deu errado!"));
+        CarDTO carDTO = CarDTO.toDTO(carRepository.save(car));
+        return carDTO;
+        // Optional<CarDTO> myCar = Optional.of(carDTO);
+        //return myCar.orElseThrow(() -> new IllegalArgumentException("Algo deu errado!"));
     }
 
-    public Optional<CarDTO> updateCar(Long id, Car car) {
+    public CarDTO updateCar(Long id, Car car) {
         Assert.notNull(id, "Não foi possível atualizar o registro!");
 
-        Optional<CarDTO> carDB = findCarById(id);
+        CarDTO carDB = findCarById(id);
 
-        carDB.map((c) -> {
+
+        Optional.of(carDB).map((c) -> {
             c.setName(car.getName());
             c.setDescription(car.getDescription());
             c.setUrlPhoto(car.getUrlPhoto());
@@ -77,6 +74,11 @@ public class CarService {
         return carDB;
     }
 
+    public void deleteCar(Long id) {
+        carRepository.deleteById(id);
+    }
+
+    /*
     public boolean deleteCar(Long id) {
         Optional<CarDTO> car = findCarById(id);
 
@@ -85,7 +87,7 @@ public class CarService {
             return true;
         } else {
             return false;
-            //throw new IllegalArgumentException("Algo deu errado!");
         }
     }
+     */
 }

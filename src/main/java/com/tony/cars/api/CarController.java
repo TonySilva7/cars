@@ -31,10 +31,8 @@ public class CarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CarDTO> findCarById(@PathVariable Long id) {
-        Optional<CarDTO> car = carService.findCarById(id);
-
-        return car.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-
+        CarDTO car = carService.findCarById(id);
+        return ResponseEntity.ok().body(car);
     }
 
     @GetMapping("/type/{type}")
@@ -54,30 +52,30 @@ public class CarController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CarDTO> insertCar(@RequestBody Car car) {
-        try {
             CarDTO myCar = carService.saveCar(car);
             URI uriLocation = getUri(myCar.getId());
 
             return ResponseEntity.created(uriLocation).body(myCar);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+            //ResponseEntity.badRequest().build();
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Optional<CarDTO>> updateCar(@PathVariable Long id, @RequestBody Car car) {
+    public ResponseEntity<CarDTO> updateCar(@PathVariable Long id, @RequestBody Car car) {
 
         car.setId(id);
-        Optional<CarDTO> myCar = carService.updateCar(id, car);
+        CarDTO myCar = carService.updateCar(id, car);
 
-        return myCar.isPresent() ? ResponseEntity.ok().body(myCar) : ResponseEntity.notFound().build();
+        //return myCar.isPresent() ? ResponseEntity.ok().body(myCar) : ResponseEntity.notFound().build();
+        return ResponseEntity.ok().body(myCar);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
-        boolean ok = carService.deleteCar(id);
-        return ok ? ResponseEntity.notFound().build() : ResponseEntity.noContent().build();
+        // boolean ok = carService.deleteCar(id);
+        // return ok ? ResponseEntity.notFound().build() : ResponseEntity.noContent().build();
+        carService.deleteCar(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
