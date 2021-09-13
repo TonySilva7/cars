@@ -2,11 +2,13 @@ package com.tony.cars.service;
 
 import com.tony.cars.domain.Car;
 import com.tony.cars.domain.dto.CarDTO;
+import com.tony.cars.domain.exceptions.DomainException;
 import com.tony.cars.repository.CarRepository;
-import com.tony.cars.service.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,25 +31,25 @@ public class CarService {
     }
 
     public CarDTO findCarById(Long id) {
-        return carRepository.findById(id)
-                .map(CarDTO::toDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Carro não encontrado!"));
+        Optional<Car> myCar =  carRepository.findById(id);
+        return myCar.map(CarDTO::toDTO).orElseThrow(() -> new EntityNotFoundException("Objeto não existe"));
     }
 
     public List<CarDTO> findCarByType(String type) {
         List<Car> cars = carRepository.findByType(type);
-        List<CarDTO> listCars = cars.stream().map(CarDTO::toDTO).collect(Collectors.toList());
 
-        return listCars;
+        if (cars.isEmpty()) {
+            throw new DomainException("Necessita de um tipo válido");
+        } else {
+            return cars.stream().map(CarDTO::toDTO).collect(Collectors.toList());
+        }
+
     }
 
     public CarDTO saveCar(Car car) {
         Assert.isNull(car.getId(), "Não foi possível inserir o registro.");
 
-        CarDTO carDTO = CarDTO.toDTO(carRepository.save(car));
-        return carDTO;
-        // Optional<CarDTO> myCar = Optional.of(carDTO);
-        //return myCar.orElseThrow(() -> new IllegalArgumentException("Algo deu errado!"));
+        return CarDTO.toDTO(carRepository.save(car));
     }
 
     public CarDTO updateCar(Long id, Car car) {
@@ -69,25 +71,16 @@ public class CarService {
             carRepository.save(obj);
 
             return c;
-        }).orElseThrow(() -> new IllegalArgumentException("Argumentos enviados são inválidos"));
+        });
 
         return carDB;
     }
 
     public void deleteCar(Long id) {
-        carRepository.deleteById(id);
-    }
-
-    /*
-    public boolean deleteCar(Long id) {
-        Optional<CarDTO> car = findCarById(id);
-
-        if (car.isPresent()) {
+        try {
             carRepository.deleteById(id);
-            return true;
-        } else {
-            return false;
+        } catch (Exception e) {
+            throw new DomainException("Necessita de um id válido");
         }
     }
-     */
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -39,9 +40,7 @@ public class CarController {
     public ResponseEntity<List<CarDTO>> findCarByType(@PathVariable String type) {
         List<CarDTO> cars = carService.findCarByType(type);
 
-        return cars.isEmpty() ?
-                ResponseEntity.noContent().build() :
-                ResponseEntity.ok().body(cars);
+        return ResponseEntity.ok().body(cars);
     }
 
     // retorna uri do novo recurso
@@ -56,24 +55,19 @@ public class CarController {
             URI uriLocation = getUri(myCar.getId());
 
             return ResponseEntity.created(uriLocation).body(myCar);
-            //ResponseEntity.badRequest().build();
     }
 
 
     @PutMapping("/{id}")
     public ResponseEntity<CarDTO> updateCar(@PathVariable Long id, @RequestBody Car car) {
-
         car.setId(id);
         CarDTO myCar = carService.updateCar(id, car);
 
-        //return myCar.isPresent() ? ResponseEntity.ok().body(myCar) : ResponseEntity.notFound().build();
         return ResponseEntity.ok().body(myCar);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCar(@PathVariable Long id) {
-        // boolean ok = carService.deleteCar(id);
-        // return ok ? ResponseEntity.notFound().build() : ResponseEntity.noContent().build();
         carService.deleteCar(id);
         return ResponseEntity.noContent().build();
     }
