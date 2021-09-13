@@ -1,9 +1,9 @@
 package com.tony.cars.service;
 
-import com.tony.cars.api.exeption.ObjectNotFoundException;
 import com.tony.cars.domain.Car;
 import com.tony.cars.domain.dto.CarDTO;
 import com.tony.cars.repository.CarRepository;
+import com.tony.cars.service.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -31,7 +31,7 @@ public class CarService {
     public CarDTO findCarById(Long id) {
         return carRepository.findById(id)
                 .map(CarDTO::toDTO)
-                .orElseThrow(() -> new ObjectNotFoundException("Carro não encontrado!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Carro não encontrado!"));
     }
 
     public List<CarDTO> findCarByType(String type) {
