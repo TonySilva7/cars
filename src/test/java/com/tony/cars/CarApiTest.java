@@ -57,13 +57,13 @@ public class CarApiTest {
         assertEquals(10, getAllCars("/api/v1/cars/type/esportivos").getBody().size());
         assertEquals(10, getAllCars("/api/v1/cars/type/luxo").getBody().size());
 
+        assertEquals(HttpStatus.OK, getAllCars("/api/v1/cars/type/luxo").getStatusCode());
         try {
             getAllCars("/api/v1/cars/type/xxx");
             assertEquals(HttpStatus.NOT_FOUND, getAllCars("/api/v1/cars/type/xxx").getStatusCode());
         } catch (DomainException e) {
             assertEquals("Necessita de um tipo válido", e.getMessage());
         }
-        //assertEquals(HttpStatus.OK, getAllCars("/api/v1/cars/type/luxo").getStatusCode());
     }
 
     @Test
