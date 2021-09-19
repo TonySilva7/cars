@@ -6,6 +6,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,9 +31,31 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         this.messageSource = messageSource;
     }
 
-    // trata erro ao lançados pela DomainException
+    // utilitária
+    private ResponseEntity<Object> makeProblem(
+        RuntimeException ex, WebRequest request, HttpServletRequest req, HttpStatus status) {
+
+        Problem problem = new Problem();
+        problem.setStatus(status.value());
+        problem.setTitle(ex.getMessage());
+        problem.setTimestamp(OffsetDateTime.now());
+        problem.setPath(req.getRequestURI());
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    // trata erros lançados de autenticação (403)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request, HttpServletRequest req) {
+
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        return makeProblem(ex, request, req, status);
+    }
+
+    // trata erro lançados pela DomainException
     @ExceptionHandler(DomainException.class)
-    public ResponseEntity<Object> handlerDomainException(DomainException ex, WebRequest request, HttpServletRequest req) {
+    public ResponseEntity<Object> handleDomainException(DomainException ex, WebRequest request, HttpServletRequest req) {
 
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
@@ -45,7 +68,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             IllegalArgumentException.class,
             NoSuchElementException.class
     })
-    public ResponseEntity<Object> handlerDomainException(RuntimeException ex, WebRequest request, HttpServletRequest req) {
+    public ResponseEntity<Object> handleRequestException(RuntimeException ex, WebRequest request, HttpServletRequest req) {
 
         HttpStatus status = HttpStatus.NOT_FOUND;
 
@@ -54,19 +77,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return makeProblem(ex, request, req, status);
-    }
-
-    // util
-    private ResponseEntity<Object> makeProblem(
-            RuntimeException ex, WebRequest request, HttpServletRequest req, HttpStatus status) {
-
-        Problem problem = new Problem();
-        problem.setStatus(status.value());
-        problem.setTitle(ex.getMessage());
-        problem.setTimestamp(OffsetDateTime.now());
-        problem.setPath(req.getRequestURI());
-
-        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
     // ................ ALGA WORKS ....................

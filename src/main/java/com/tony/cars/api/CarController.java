@@ -5,6 +5,7 @@ import com.tony.cars.domain.dto.CarDTO;
 import com.tony.cars.service.CarService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -50,6 +51,7 @@ public class CarController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Secured({"ROLE_ADMIN"})
     public ResponseEntity<CarDTO> insertCar(@RequestBody Car car) {
             CarDTO myCar = carService.saveCar(car);
             URI uriLocation = getUri(myCar.getId());
